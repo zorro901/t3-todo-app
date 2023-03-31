@@ -1,6 +1,7 @@
 import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
 import { createInput, toggleInput, updateInput } from "~/server/types";
 import { z } from "zod";
+import { TRPCError } from "@trpc/server";
 export const todoRouter = createTRPCRouter({
   all: protectedProcedure.query(async ({ ctx }) => {
     const todos = await ctx.prisma.todo.findMany({
@@ -41,6 +42,10 @@ export const todoRouter = createTRPCRouter({
     });
   }),
   update: protectedProcedure.input(updateInput).mutation(({ ctx, input }) => {
+    throw new TRPCError({
+      code: "INTERNAL_SERVER_ERROR",
+      message: "failed to update todo",
+    });
     const { id, text } = input;
     return ctx.prisma.todo.update({
       where: {
